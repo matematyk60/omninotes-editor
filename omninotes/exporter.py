@@ -3,7 +3,8 @@ import json
 import os
 import pathlib
 import shutil
-from time import time
+from time import time, sleep
+
 
 from omninotes.notedata import NoteData
 
@@ -28,6 +29,7 @@ class Exporter:
         files_path = os.path.join(target_directory, 'files')
         pathlib.Path(files_path).mkdir(parents=True, exist_ok=True)
         for note in self.notes:
+            sleep(0.01)
             note_timestamp = str(int(time() * 1000))
             attachments_property = []
             for attachment in note.attachments:
