@@ -5,7 +5,6 @@ import pathlib
 import shutil
 from time import time, sleep
 
-
 from omninotes.notedata import NoteData
 
 
@@ -41,18 +40,18 @@ class Exporter:
                                              "length": 0,
                                              "mime_type": attachment.mime,
                                              "size": 0,
-                                             "uriPath": attachment.uriWithPrefix(note_timestamp)})
+                                             "uriPath": attachment.uri_with_prefix(note_timestamp)})
+            settings_properties = note.settings()
             properties = {
                 "passwordChecked": False,
-                "archived": note.archived,
                 "attachmentList": attachments_property,
                 "checkList": False,
                 "content": note.content,
                 "creation": note.time_created,
                 "lastModification": note.time_modified,
-                "trashed": note.trashed,
                 "title": note.title,
-                "reminderFired": False
+                "reminderFired": False,
+                **settings_properties.properties_map()
             }
             json_file_contents = json.dumps(properties)
             json_file_path = os.path.join(target_directory, f"{note_timestamp}.json")

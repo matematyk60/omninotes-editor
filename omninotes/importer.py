@@ -19,7 +19,7 @@ class Importer:
                 self.notes.append(
                     NoteData.parse_from_backup(f.read(), f"{join(self.backup_path, 'files')}"))
 
-    def importNotes(self, path: str):
+    def import_notes(self, path: str):
         for note in self.notes:
             title = self.get_title(note)
             note_path = join(path, title)
@@ -31,6 +31,7 @@ class Importer:
                 f.write(note.content)
             for attachment in note.attachments:
                 shutil.copy2(attachment.file_path, files_path)
+            note.settings().write_to_file(note_path)
 
     def get_title(self, note: NoteData) -> str:
         if note.title:

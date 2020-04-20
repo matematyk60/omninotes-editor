@@ -52,7 +52,7 @@ class Attachment:
                     pass
         return attachments
 
-    def uriWithPrefix(self, prefix):
+    def uri_with_prefix(self, prefix):
         splitted = self.uri.split("/")
         splitted_size = len(splitted)
         file_name = splitted[-1]

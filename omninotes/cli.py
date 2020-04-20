@@ -25,7 +25,7 @@ class CLI:
             dest = options.destination if options.destination else "./OmniNotesEditor/"
             for backup_path in options.backup_paths:
                 try:
-                    Importer(backup_path).importNotes(dest)
+                    Importer(backup_path).import_notes(dest)
                 except Exception as e:
                     print(f"Error while importing backup '{backup_path}': {e}")
         elif options.export:
