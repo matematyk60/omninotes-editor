@@ -2,7 +2,11 @@ import argparse
 import sys
 from omninotes.importer import Importer
 import os
+import pathlib
 from omninotes.exporter import Exporter
+from omninotes.category import Category
+from omninotes.category_dump import CategoryDump
+
 
 class CLI:
     def __init__(self):
@@ -23,11 +27,14 @@ class CLI:
             self.parser.print_usage()
         elif options.import_:
             dest = options.destination if options.destination else "./OmniNotesEditor/"
+            category_dump = CategoryDump()
+            pathlib.Path(dest).mkdir(parents=True, exist_ok=True)
             for backup_path in options.backup_paths:
                 try:
-                    Importer(backup_path).import_notes(dest)
+                    Importer(backup_path, category_dump).import_notes(dest)
                 except Exception as e:
                     print(f"Error while importing backup '{backup_path}': {e}")
+            category_dump.write_category_file(dest)
         elif options.export:
             source = options.source if options.source else "."
             dest = options.destination if options.destination else "./OmniNotesEditor/backup/"
@@ -35,7 +42,8 @@ class CLI:
                 exporter = Exporter(source)
                 exporter.export_notes(dest)
             except Exception as e:
-                print(f"Error while exporting to backup from source '{source}': {e}")
+                print(
+                    f"Error while exporting to backup from source '{source}': {e}")
         else:
             raise NotImplementedError()
 

@@ -4,12 +4,14 @@ import shutil
 import pathlib
 from os.path import join
 from omninotes.notedata import NoteData
-
+from omninotes.category import Category
+from omninotes.category_dump import CategoryDump
 
 class Importer:
-    def __init__(self, backup_path: str):
+    def __init__(self, backup_path: str, category_dump: CategoryDump):
         self.backup_path = backup_path
         self.notes = []
+        self.category_dump = category_dump
         self.load_notes()
 
     def load_notes(self):
@@ -32,8 +34,16 @@ class Importer:
             for attachment in note.attachments:
                 shutil.copy2(attachment.file_path, files_path)
             note.settings().write_to_file(note_path)
+        self.add_categories()
+   
 
     def get_title(self, note: NoteData) -> str:
         if note.title:
             return f'{note.title}_{note.time_created}'
         return str(note.time_created)
+
+
+    def add_categories(self):
+        for note in self.notes:
+            if note.category:
+                self.category_dump.add(note.category)

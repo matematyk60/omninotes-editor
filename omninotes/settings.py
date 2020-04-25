@@ -1,15 +1,16 @@
 from typing import Optional
 import os
 import configparser
-
+from omninotes.category import Category
 from datetime import datetime
 
 
 class Settings:
-    def __init__(self, trashed: bool, archived: bool, alarm: Optional[int]):
+    def __init__(self, trashed: bool, archived: bool, alarm: Optional[int], category: Optional[Category]):
         self.trashed = trashed
         self.archived = archived
         self.alarm = alarm  # epoch millis
+        self.category = category
 
     @staticmethod
     def settings_section(): return "settings"
@@ -19,43 +20,56 @@ class Settings:
 
     def write_to_file(self, base_dir):
         config = configparser.ConfigParser()
-
         config[Settings.settings_section()] = {
             "trashed": str(self.trashed).lower(),
             "archived": str(self.archived).lower(),
-            "alarm": datetime.fromtimestamp(self.alarm / 1000).isoformat() if self.alarm else ""
+            "alarm": datetime.fromtimestamp(self.alarm / 1000).isoformat() if self.alarm else "",
+            "category": self.category.title if self.category else ""
         }
 
         with open(Settings.settings_file(base_dir), 'w') as f:
             config.write(f)
 
     def properties_map(self):
-        alarm = {"alarm": self.alarm} if self.alarm else {}
+        alarm = {"alarm": int(self.alarm)} if self.alarm else {}
+        category = {"baseCategory": self.category.to_json()} if self.category else {}
         return {
             "trashed": self.trashed,
             "archived": self.archived,
-            **alarm
+            **alarm,
+            **category
         }
 
     @staticmethod
     def parse_from_json(json):
         Settings.validate_json(json)
+        alarm = json.get("alarm")
+        if alarm: alarm = int(alarm)
         return Settings(
             json.get("trashed", False),
             json.get("archived", False),
-            json.get("alarm")
+            alarm,
+            Category.parse_from_backup(json["baseCategory"]) if "baseCategory" in json else None,
         )
 
     @staticmethod
-    def parse_from_file(base_dir):
+    def parse_from_file(base_dir, categories):
         Settings.validate_file_structure(base_dir)
         config = configparser.ConfigParser()
         config.read(Settings.settings_file(base_dir))
+
+        category = config.get(Settings.settings_section(), "category", fallback=None)
+        if category:
+            cat_title = category
+            category = categories.get(cat_title)
+            if not category:
+                raise Exception(f"category '{cat_title}' is not defined'")
+
         alarm = config.get(Settings.settings_section(), "alarm", fallback=None)
         parsed_alarm = int(datetime.fromisoformat(alarm).timestamp()) * 1000 if alarm else None
         return Settings(trashed=config.getboolean(Settings.settings_section(), "trashed"),
                         archived=config.getboolean(Settings.settings_section(), "archived"),
-                        alarm=parsed_alarm)
+                        alarm=parsed_alarm, category=category)
 
     @staticmethod
     def validate_json(json):
