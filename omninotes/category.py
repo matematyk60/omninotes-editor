@@ -94,14 +94,19 @@ class Category:
             return False
 
     @staticmethod
-    def dump_to_file(filename, categories: list):
+    def dump_to_file(filename, categories: list, append=False):
         config = configparser.ConfigParser()
         for category in categories:
             config[category.title] = {
                 "id": category.id,
                 "color": category.color
             }
-        with open(filename, "w") as f:
-            f.write(
-                f"; Available colors: {', '.join(Category.color_names.keys())}\n; or hex values: #AARRGGBB\n")
-            config.write(f)
+        if not append:
+            with open(filename, "w") as f:
+                f.write(
+                    f"; Available colors: {', '.join(Category.color_names.keys())}\n; or hex values: #AARRGGBB\n")
+                config.write(f)
+        else:
+            with open(filename, "a") as f:
+                f.write('\n')
+                config.write(f)

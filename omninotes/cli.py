@@ -9,6 +9,7 @@ from omninotes.category_dump import CategoryDump
 
 
 class CLI:
+    Instance = None
     def __init__(self):
         self.parser = argparse.ArgumentParser(description="OmniNotes editor")
         self.parser.add_argument(
@@ -20,24 +21,27 @@ class CLI:
         self.parser.add_argument(
             "-s", "--source", dest="source", action="store")
         self.parser.add_argument("backup_paths", nargs='*', action="store")
+        self.parser.add_argument("-n", "--no-confirm", dest="no_confirm", action='store_true')
+        
 
     def run(self):
-        options = self.parser.parse_args()
-        if bool(options.import_) == bool(options.export):
+        CLI.Instance = self
+        self.options = self.parser.parse_args()
+        if bool(self.options.import_) == bool(self.options.export):
             self.parser.print_usage()
-        elif options.import_:
-            dest = options.destination if options.destination else "./OmniNotesEditor/"
+        elif self.options.import_:
+            dest = self.options.destination if self.options.destination else "./OmniNotesEditor/"
             category_dump = CategoryDump()
             pathlib.Path(dest).mkdir(parents=True, exist_ok=True)
-            for backup_path in options.backup_paths:
+            for backup_path in self.options.backup_paths:
                 try:
                     Importer(backup_path, category_dump).import_notes(dest)
                 except Exception as e:
                     print(f"Error while importing backup '{backup_path}': {e}")
             category_dump.write_category_file(dest)
-        elif options.export:
-            source = options.source if options.source else "."
-            dest = options.destination if options.destination else "./OmniNotesEditor/backup/"
+        elif self.options.export:
+            source = self.options.source if self.options.source else "."
+            dest = self.options.destination if self.options.destination else "./OmniNotesEditor/backup/"
             try:
                 exporter = Exporter(source)
                 exporter.export_notes(dest)

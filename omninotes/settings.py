@@ -3,7 +3,7 @@ import os
 import configparser
 from omninotes.category import Category
 from datetime import datetime
-
+from time import time
 
 class Settings:
     def __init__(self, trashed: bool, archived: bool, alarm: Optional[int], category: Optional[Category], time_created: int):
@@ -68,7 +68,9 @@ class Settings:
             cat_title = category
             category = categories.get(cat_title)
             if not category:
-                raise Exception(f"category '{cat_title}' is not defined'")
+                categories[cat_title] = Settings.create_new_category(cat_title)
+                category = categories[cat_title]
+                Settings.write_new_category(category, os.path.join(base_dir, '..', 'categories.ini'))
         
         time_created = config.getint(Settings.settings_section(), "id", fallback=None)
         if time_created is None:
@@ -78,6 +80,25 @@ class Settings:
         return Settings(trashed=config.getboolean(Settings.settings_section(), "trashed"),
                         archived=config.getboolean(Settings.settings_section(), "archived"),
                         alarm=parsed_alarm, category=category, time_created=time_created)
+
+
+    @staticmethod
+    def create_new_category(cat_title) -> Category:
+        from omninotes.cli import CLI
+        if not CLI.Instance.options.no_confirm:
+            print(f"Category '{cat_title}' does not exists'")
+            if input("Type 'y' to create, 'n' to abort exporting: ").strip().lower() != 'y':
+                exit(0)
+            color = input("Input color: ")
+            if not Category.validate_color(color):
+                raise Exception("Provider color is incorrect")
+            return Category(int(time() * 1000), cat_title, color)
+        return Category(int(time() * 1000), cat_title, "black")
+        
+    @staticmethod
+    def write_new_category(category, path):
+        if os.path.exists(path):
+            Category.dump_to_file(path, [category], True)
 
     @staticmethod
     def validate_json(json):
