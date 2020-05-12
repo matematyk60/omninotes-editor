@@ -4,6 +4,8 @@ from os.path import join
 from typing import List, Optional
 from omninotes.category import Category
 from omninotes.attachment import Attachment
+import time
+
 
 from omninotes.settings import Settings
 class NoteData:
@@ -25,7 +27,8 @@ class NoteData:
             self.trashed,
             self.archived,
             self.alarm,
-            self.category
+            self.category,
+            self.time_created
         )
 
     def category_map(self) -> dict:
@@ -60,8 +63,8 @@ class NoteData:
             alarm=settings.alarm,
             attachments=Attachment.parse_from_file_structure(str(join(note_path, "attachments"))),
             category=settings.category,
-            time_created=0,
-            time_modified=0,
+            time_created=settings.time_created,
+            time_modified=int(round(time.time() * 1000)),
             trashed=settings.trashed,
             archived=settings.archived
         )
