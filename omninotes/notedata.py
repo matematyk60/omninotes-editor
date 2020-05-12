@@ -4,6 +4,8 @@ from os.path import join
 from typing import List, Optional
 from omninotes.category import Category
 from omninotes.attachment import Attachment
+import time
+
 
 from omninotes.settings import Settings
 class NoteData:
@@ -24,8 +26,15 @@ class NoteData:
         return Settings(
             self.trashed,
             self.archived,
-            self.alarm
+            self.alarm,
+            self.category,
+            self.time_created
         )
+
+    def category_map(self) -> dict:
+        if not self.category:
+            return {}
+        return self.category.to_json()
 
     @staticmethod
     def parse_from_backup(file_contents, attachments_path):
@@ -37,7 +46,7 @@ class NoteData:
             title=data.get("title"),
             alarm=settings.alarm,
             attachments=Attachment.parse(data.get("attachmentsList"), attachments_path),
-            category=Category(data["baseCategory"]) if "baseCategory" in data else None,
+            category=settings.category,
             time_created=data.get("creation"),
             time_modified=data.get("lastModification"),
             trashed=settings.trashed,
@@ -45,17 +54,17 @@ class NoteData:
         )
 
     @staticmethod
-    def parse_from_file_structure(content_file_contents, note_path):
+    def parse_from_file_structure(content_file_contents, note_path, categories):
         NoteData.validate_note_file_structure(note_path)
-        settings = Settings.parse_from_file(note_path)
+        settings = Settings.parse_from_file(note_path, categories)
         return NoteData(
             content=content_file_contents,
             title=os.path.basename(note_path).split("_")[0],
             alarm=settings.alarm,
             attachments=Attachment.parse_from_file_structure(str(join(note_path, "attachments"))),
-            category=None,
-            time_created=0,
-            time_modified=0,
+            category=settings.category,
+            time_created=settings.time_created,
+            time_modified=int(round(time.time() * 1000)),
             trashed=settings.trashed,
             archived=settings.archived
         )

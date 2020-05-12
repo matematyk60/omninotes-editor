@@ -3,6 +3,8 @@ import json
 import os
 import pathlib
 import shutil
+from omninotes.category import Category
+
 from time import time, sleep
 
 from omninotes.notedata import NoteData
@@ -12,17 +14,27 @@ class Exporter:
     def __init__(self, source_path: str):
         self.source_path = source_path
         self.notes = []
+        self.categories = []
+        self.load_categories()
         self.load_notes()
+
+    def load_categories(self):
+        self.categories = {category.title: category for category in
+                           Category.parse_from_config_file(os.path.join(self.source_path, "categories.ini"))}
 
     def load_notes(self):
         with os.scandir(self.source_path) as entries:
             for entry in entries:
-                if entry.is_dir:
-                    content_file = glob.glob(f"{entry.path}/*.txt")[0]
+                if os.path.isdir(entry.path):
+                    content_files = glob.glob(f"{entry.path}/*.txt")
+                    if not content_files:
+                        print(
+                            f"Skipping directory {entry.path} - no content file")
+                        continue
+                    content_file = content_files[0]
                     with open(content_file) as f:
-                        self.notes.append(NoteData.parse_from_file_structure(f.read(), entry.path))
-                else:
-                    pass
+                        self.notes.append(NoteData.parse_from_file_structure(
+                            f.read(), entry.path, self.categories))
 
     def export_notes(self, target_directory):
         files_path = os.path.join(target_directory, 'files')
@@ -35,7 +47,8 @@ class Exporter:
                 shutil.copy(attachment.file_path, files_path)
                 file_name = attachment.get_file_name()
                 new_name = f"{note_timestamp}_{file_name}"
-                pathlib.Path(os.path.join(files_path, file_name)).rename(os.path.join(files_path, new_name))
+                pathlib.Path(os.path.join(files_path, file_name)).rename(
+                    os.path.join(files_path, new_name))
                 attachments_property.append({"id": attachment.id,
                                              "length": 0,
                                              "mime_type": attachment.mime,
@@ -51,9 +64,10 @@ class Exporter:
                 "lastModification": note.time_modified,
                 "title": note.title,
                 "reminderFired": False,
-                **settings_properties.properties_map()
+                **settings_properties.properties_map(),
             }
-            json_file_contents = json.dumps(properties)
-            json_file_path = os.path.join(target_directory, f"{note_timestamp}.json")
+            json_file_contents = json.dumps(properties, indent=2)
+            json_file_path = os.path.join(
+                target_directory, f"{note_timestamp}.json")
             with open(json_file_path, 'w') as f:
                 f.write(json_file_contents)
