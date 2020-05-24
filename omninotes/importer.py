@@ -7,6 +7,7 @@ from omninotes.notedata import NoteData
 from omninotes.category import Category
 from omninotes.category_dump import CategoryDump
 
+
 class Importer:
     def __init__(self, backup_path: str, category_dump: CategoryDump):
         self.backup_path = backup_path
@@ -28,20 +29,19 @@ class Importer:
             files_path = join(note_path, 'attachments')
             pathlib.Path(note_path).mkdir(parents=True, exist_ok=True)
             pathlib.Path(files_path).mkdir(parents=True, exist_ok=True)
-            content_path = f"{join(note_path, note.title if note.title else 'content')}.txt"
+            extension = ".cl" if note.checklist else ".txt"
+            content_path = f"{join(note_path, note.title if note.title else 'content')}{extension}"
             with open(content_path, 'w') as f:
                 f.write(note.content)
             for attachment in note.attachments:
                 shutil.copy2(attachment.file_path, files_path)
             note.settings().write_to_file(note_path)
         self.add_categories()
-   
 
     def get_title(self, note: NoteData) -> str:
         if note.title:
             return f'{note.title}_{note.time_created}'
         return str(note.time_created)
-
 
     def add_categories(self):
         for note in self.notes:

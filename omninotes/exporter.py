@@ -26,15 +26,18 @@ class Exporter:
         with os.scandir(self.source_path) as entries:
             for entry in entries:
                 if os.path.isdir(entry.path):
-                    content_files = glob.glob(f"{entry.path}/*.txt")
+                    text_content_files = glob.glob(f"{entry.path}/*.txt")
+                    checklist_content_files = glob.glob(f"{entry.path}/*.cl")
+                    content_files = text_content_files + checklist_content_files
                     if not content_files:
                         print(
                             f"Skipping directory {entry.path} - no content file")
                         continue
                     content_file = content_files[0]
+                    content_file_extension = os.path.splitext(content_file)[1]
                     with open(content_file) as f:
                         self.notes.append(NoteData.parse_from_file_structure(
-                            f.read(), entry.path, self.categories))
+                            f.read(), content_file_extension, entry.path, self.categories))
 
     def export_notes(self, target_directory):
         files_path = os.path.join(target_directory, 'files')
@@ -57,7 +60,7 @@ class Exporter:
             properties = {
                 "passwordChecked": False,
                 "attachmentList": attachments_property,
-                "checkList": False,
+                "checklist": note.checklist,
                 "content": note.content,
                 "creation": note.time_created,
                 "lastModification": note.time_modified,

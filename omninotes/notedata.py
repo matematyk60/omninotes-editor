@@ -6,12 +6,13 @@ from omninotes.category import Category
 from omninotes.attachment import Attachment
 import time
 
-
 from omninotes.settings import Settings
+
+
 class NoteData:
     def __init__(self, content: str, title: Optional[str], alarm: Optional[int],
                  attachments: List[Attachment], category: Optional[Category], time_created: int,
-                 time_modified: int, trashed: bool, archived: bool):
+                 time_modified: int, trashed: bool, archived: bool, checklist: bool):
         self.content = content
         self.title = title
         self.alarm = alarm
@@ -21,6 +22,7 @@ class NoteData:
         self.time_modified = time_modified
         self.trashed = trashed
         self.archived = archived
+        self.checklist = checklist
 
     def settings(self):
         return Settings(
@@ -50,11 +52,12 @@ class NoteData:
             time_created=data.get("creation"),
             time_modified=data.get("lastModification"),
             trashed=settings.trashed,
-            archived=settings.archived
+            archived=settings.archived,
+            checklist=data.get("checklist")
         )
 
     @staticmethod
-    def parse_from_file_structure(content_file_contents, note_path, categories):
+    def parse_from_file_structure(content_file_contents, content_file_extension, note_path, categories):
         NoteData.validate_note_file_structure(note_path)
         settings = Settings.parse_from_file(note_path, categories)
         return NoteData(
@@ -66,7 +69,8 @@ class NoteData:
             time_created=settings.time_created,
             time_modified=int(round(time.time() * 1000)),
             trashed=settings.trashed,
-            archived=settings.archived
+            archived=settings.archived,
+            checklist=content_file_extension == ".cl"
         )
 
     @staticmethod
