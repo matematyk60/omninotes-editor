@@ -59,7 +59,7 @@ class Exporter:
             settings_properties = note.settings()
             properties = {
                 "passwordChecked": False,
-                "attachmentList": attachments_property,
+                "attachmentsList": attachments_property,
                 "checklist": note.checklist,
                 "content": note.content,
                 "creation": note.time_created,

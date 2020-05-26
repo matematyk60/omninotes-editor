@@ -6,12 +6,14 @@ from datetime import datetime
 from time import time
 
 class Settings:
-    def __init__(self, trashed: bool, archived: bool, alarm: Optional[int], category: Optional[Category], time_created: int):
+    def __init__(self, trashed: bool, archived: bool, alarm: Optional[int], category: Optional[Category], time_created: int, longitude: float, latitude:float):
         self.trashed = trashed
         self.archived = archived
         self.alarm = alarm  # epoch millis
         self.category = category
         self.time_created = time_created
+        self.longitude = longitude
+        self.latitude = latitude
 
     @staticmethod
     def settings_section(): return "settings"
@@ -26,7 +28,9 @@ class Settings:
             "trashed": str(self.trashed).lower(),
             "archived": str(self.archived).lower(),
             "alarm": datetime.fromtimestamp(self.alarm / 1000).isoformat() if self.alarm else "",
-            "category": self.category.title if self.category else ""
+            "category": self.category.title if self.category else "",
+            "longitude": self.longitude if self.longitude else "",
+            "latitude": self.latitude if self.latitude else ""
         }
 
         with open(Settings.settings_file(base_dir), 'w') as f:
@@ -35,11 +39,13 @@ class Settings:
     def properties_map(self):
         alarm = {"alarm": int(self.alarm)} if self.alarm else {}
         category = {"baseCategory": self.category.to_json()} if self.category else {}
+        location = {"latitude" : self.latitude, "longitude" : self.longitude} if self.longitude and self.latitude else {}
         return {
             "trashed": self.trashed,
             "archived": self.archived,
             **alarm,
-            **category
+            **category,
+            **location
         }
 
     @staticmethod
@@ -54,7 +60,9 @@ class Settings:
             json.get("archived", False),
             alarm,
             Category.parse_from_backup(json["baseCategory"]) if "baseCategory" in json else None,
-            creation
+            creation,
+            json.get("longitude"),
+            json.get("latitude")
         )
 
     @staticmethod
@@ -72,6 +80,13 @@ class Settings:
                 category = categories[cat_title]
                 Settings.write_new_category(category, os.path.join(base_dir, '..', 'categories.ini'))
         
+        longitude = config.get(Settings.settings_section(), "longitude", fallback=None)
+        if longitude:
+            longitude = float(longitude)
+        latitude=config.get(Settings.settings_section(), "latitude", fallback=None)
+        if latitude:
+            latitude = float(latitude)
+
         time_created = config.getint(Settings.settings_section(), "id", fallback=None)
         if time_created is None:
             raise Exception(f"Id is missing for note '{base_dir}'")
@@ -79,7 +94,9 @@ class Settings:
         parsed_alarm = int(datetime.fromisoformat(alarm).timestamp()) * 1000 if alarm else None
         return Settings(trashed=config.getboolean(Settings.settings_section(), "trashed"),
                         archived=config.getboolean(Settings.settings_section(), "archived"),
-                        alarm=parsed_alarm, category=category, time_created=time_created)
+                        alarm=parsed_alarm, category=category, time_created=time_created,
+                        longitude=longitude,
+                        latitude=latitude)
 
 
     @staticmethod

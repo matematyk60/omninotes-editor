@@ -12,7 +12,7 @@ from omninotes.settings import Settings
 class NoteData:
     def __init__(self, content: str, title: Optional[str], alarm: Optional[int],
                  attachments: List[Attachment], category: Optional[Category], time_created: int,
-                 time_modified: int, trashed: bool, archived: bool, checklist: bool):
+                 time_modified: int, trashed: bool, archived: bool, checklist: bool, longitude: float, latitude:float):
         self.content = content
         self.title = title
         self.alarm = alarm
@@ -23,6 +23,8 @@ class NoteData:
         self.trashed = trashed
         self.archived = archived
         self.checklist = checklist
+        self.longitude = longitude 
+        self.latitude = latitude
 
     def settings(self):
         return Settings(
@@ -30,7 +32,9 @@ class NoteData:
             self.archived,
             self.alarm,
             self.category,
-            self.time_created
+            self.time_created,
+            self.longitude,
+            self.latitude
         )
 
     def category_map(self) -> dict:
@@ -53,7 +57,9 @@ class NoteData:
             time_modified=data.get("lastModification"),
             trashed=settings.trashed,
             archived=settings.archived,
-            checklist=data.get("checklist")
+            checklist=data.get("checklist"),
+            longitude=data.get("longitude"),
+            latitude=data.get("latitude")
         )
 
     @staticmethod
@@ -70,7 +76,9 @@ class NoteData:
             time_modified=int(round(time.time() * 1000)),
             trashed=settings.trashed,
             archived=settings.archived,
-            checklist=content_file_extension == ".cl"
+            checklist=content_file_extension == ".cl",
+            longitude=settings.longitude,
+            latitude=settings.latitude
         )
 
     @staticmethod
