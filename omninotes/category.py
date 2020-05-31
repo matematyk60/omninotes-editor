@@ -103,10 +103,13 @@ class Category:
             }
         if not append:
             with open(filename, "w") as f:
-                f.write(
-                    f"; Available colors: {', '.join(Category.color_names.keys())}\n; or hex values: #AARRGGBB\n")
+                f.write(Category.get_categories_header())
                 config.write(f)
         else:
             with open(filename, "a") as f:
                 f.write('\n')
                 config.write(f)
+
+    @staticmethod
+    def get_categories_header() -> str:
+        return f"; Available colors: {', '.join(Category.color_names.keys())}\n; or hex values: #AARRGGBB\n"

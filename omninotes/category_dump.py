@@ -6,7 +6,7 @@ class CategoryDump:
     def __init__(self):
         self.categories = []
 
-    def add(self, category):
+    def add(self, category: Category):
         self.categories.append(category)
     
 
