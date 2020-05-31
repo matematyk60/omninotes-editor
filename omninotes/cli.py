@@ -29,6 +29,9 @@ class CLI:
             "--add-category", action='store', dest="category_title")
         self.parser.add_argument(
             "--color", action='store', dest="color", help='color for new category')
+        self.parser.add_argument(
+            "--add-note", dest="add_note", action='store_true')
+        self.parser.add_argument("--title", dest="note_title", action='store')
 
     def run(self):
         CLI.Instance = self
@@ -39,6 +42,11 @@ class CLI:
                 self.add_category(self.options.category_title)
             except Exception as e:
                 print(f"Error while creating category: {e}")
+        elif self.options.add_note:
+            try:
+                self.add_note()
+            except Exception as e:
+                print(f"Error while creating note: {e}")
         elif bool(self.options.import_) == bool(self.options.export):
             self.parser.print_usage()
         elif self.options.import_:
@@ -75,6 +83,14 @@ class CLI:
                 color = input("Type color name or #AARRGGBB hex value: ")
 
         CliHelpers.create_new_category(self.get_source_path(), title, color)
+
+    def add_note(self):
+        title = self.options.note_title
+        if not title:
+            if not self.options.no_confirm:
+                title = input("Type note title: ")
+        CliHelpers.create_new_note(self.get_source_path(), title)
+
 
     def home_dir(self):
         os.path.expanduser("~")

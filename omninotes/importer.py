@@ -24,21 +24,11 @@ class Importer:
 
     def import_notes(self, path: str):
         for note in self.notes:
-            title = self.get_title(note)
-            note_path = join(path, title)
-            files_path = join(note_path, 'attachments')
-            pathlib.Path(note_path).mkdir(parents=True, exist_ok=True)
-            pathlib.Path(files_path).mkdir(parents=True, exist_ok=True)
-            extension = ".cl" if note.checklist else ".txt"
-            content_path = f"{join(note_path, note.title if note.title else 'content')}{extension}"
-            with open(content_path, 'w') as f:
-                f.write(note.content)
-            for attachment in note.attachments:
-                shutil.copy2(attachment.file_path, files_path)
-            note.settings().write_to_file(note_path)
+            Importer.import_note(note, path)
         self.add_categories()
 
-    def get_title(self, note: NoteData) -> str:
+    @staticmethod
+    def get_title(note: NoteData) -> str:
         if note.title:
             return f'{note.title}_{note.time_created}'
         return str(note.time_created)
@@ -47,3 +37,18 @@ class Importer:
         for note in self.notes:
             if note.category:
                 self.category_dump.add(note.category)
+
+    @staticmethod
+    def import_note(note: NoteData, path: str):
+        title = Importer.get_title(note)
+        note_path = join(path, title)
+        files_path = join(note_path, 'attachments')
+        pathlib.Path(note_path).mkdir(parents=True, exist_ok=True)
+        pathlib.Path(files_path).mkdir(parents=True, exist_ok=True)
+        extension = ".cl" if note.checklist else ".txt"
+        content_path = f"{join(note_path, note.title if note.title else 'content')}{extension}"
+        with open(content_path, 'w') as f:
+            f.write(note.content)
+        for attachment in note.attachments:
+            shutil.copy2(attachment.file_path, files_path)
+        note.settings().write_to_file(note_path)

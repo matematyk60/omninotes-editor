@@ -1,7 +1,10 @@
 import os
 from time import time
+from typing import Optional
 from omninotes.category import Category
 from omninotes.category_dump import CategoryDump
+from omninotes.notedata import NoteData
+from omninotes.importer import Importer
 
 class CliHelpers:
     @staticmethod
@@ -16,3 +19,20 @@ class CliHelpers:
         dump.add(new_category)
         dump.write_category_file(backups_path)
 
+    @staticmethod
+    def create_new_note(backups_path: str, title: Optional[str]):
+        data = NoteData(
+            content='',
+            title=title,
+            alarm=None,
+            attachments=[],
+            category=None,
+            time_created=int(time() * 1000),
+            time_modified=int(time() * 1000),
+            trashed=False,
+            archived=False,
+            checklist=False,
+            longitude=None,
+            latitude=None
+        )
+        Importer.import_note(data, backups_path)
