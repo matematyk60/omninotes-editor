@@ -20,8 +20,6 @@ class CLI:
             "-e", "--export", dest="export", action='store_true')
         self.parser.add_argument(
             "-d", "--destination", dest="destination", action="store")
-        self.parser.add_argument(
-            "-s", "--source", dest="source", action="store")
         self.parser.add_argument("backup_paths", nargs='*', action="store")
         self.parser.add_argument("-n", "--no-confirm",
                                  dest="no_confirm", action='store_true', help='No user input for incomplete data')
@@ -60,7 +58,11 @@ class CLI:
                     print(f"Error while importing backup '{backup_path}': {e}")
             category_dump.write_category_file(dest)
         elif self.options.export:
-            source = self.get_source_path()
+            if self.options.backup_paths:
+                source = self.options.backup_paths[0]
+            else:
+                self.parser.print_usage()
+                return
             dest = self.options.destination if self.options.destination else "./OmniNotesEditor/backup/"
             try:
                 exporter = Exporter(source)

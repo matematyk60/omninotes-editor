@@ -52,6 +52,24 @@ To add new attachment simply add file to `attachments` directory.
 
 ## export your notes
 
+To export your notes run:
+
+```bash
+./omninoteseditor --export --source /home/user/my-notes --destination /home/user/my-notes-backup
+```
+
+You can use created backup directory to import your notes to OmniNotes app. Go to Settings -> Data -> Sync and Backups -> Reestore or delete backups.
+
+## omninoteseditor options
+* `--import, -i` `{backup_directory_1} [{backup_directory_2} [...]]`: use this flag to import your OmniNotes app backups
+* `--export, -e` `{source_directory}`: use this flag to export your notes to OmniNotes backup directory.
+* `--destination, -d` destination directory path.
+        
+    When used with `--import` flag specifies where imported notes directory should be created. Defaults to `./OmniNotesEditor`
+    
+    When used with `--export` flag specifies where OmniNotes backup directory is created. Defaults to `./OmniNotesEditor/backup/`
+* `--`
+
 ## dependencies
 
 # development documentation
