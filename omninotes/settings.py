@@ -74,7 +74,10 @@ class Settings:
         category = config.get(Settings.settings_section(), "category", fallback=None)
         if category:
             cat_title = category
-            category = categories.get(cat_title)
+            category = None
+            for category_ in categories:
+                if category_.title == cat_title:
+                    category = category_
             if not category:
                 categories[cat_title] = Settings.create_new_category(cat_title)
                 category = categories[cat_title]

@@ -5,6 +5,7 @@ from omninotes.category import Category
 from omninotes.category_dump import CategoryDump
 from omninotes.notedata import NoteData
 from omninotes.importer import Importer
+from omninotes.settings import Settings
 
 class CliHelpers:
     @staticmethod
@@ -36,3 +37,18 @@ class CliHelpers:
             latitude=None
         )
         Importer.import_note(data, backups_path)
+
+    @staticmethod
+    def edit_settings(note_path: str, new_trashed: Optional[bool], new_archived: Optional[bool], new_category: Optional[int]):
+        categories = Category.parse_from_config_file(os.path.join(note_path, "..", "categories.ini"))
+        settings = Settings.parse_from_file(note_path, categories)
+        settings.archived = new_archived if new_archived else settings.archived
+        settings.trashed = new_trashed if new_trashed else settings.trashed
+        if new_category:
+            if not (new_category in map(lambda c: c.title, categories)):
+                raise Exception(f"Category with title [f{new_category}] does not exist")
+            else:
+                for category in categories:
+                    if category.title == new_category:
+                        settings.category = category
+        settings.write_to_file(note_path)

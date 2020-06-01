@@ -36,6 +36,19 @@ Created note structure should has following structure:
 └── categories.ini # category database file
 ```
 
+## `settings.ini`
+
+In this file you can edit note's settings. File has following, self explaining structure:
+```
+[settings]
+id = 1591002625529
+trashed = true
+archived = true
+category = pieski
+longitude = 18.359418
+latitude = 50.064192
+``` 
+
 ## create a note
 To create new note in imported backup run:
 ```bash
@@ -96,6 +109,12 @@ To export your notes run:
 
 You can use created backup directory to import your notes to OmniNotes app. Go to Settings -> Data -> Sync and Backups -> Reestore or delete backups.
 
+## edit settings with CLI
+To edit your notes settings without editing `settings.ini` file you can run
+```bash
+./omninoteseditor --settings /home/user/my-notes/my-note \
+  --archived true --trashed false --category not-so-important
+```
 ## omninoteseditor options
 * `--import, -i` `{backup_directory_1} [{backup_directory_2} [...]]`: use this flag to import your OmniNotes app backups
 * `--export, -e` `{source_directory}`: use this flag to export your notes to OmniNotes backup directory.
@@ -104,10 +123,16 @@ You can use created backup directory to import your notes to OmniNotes app. Go t
     When used with `--import` flag specifies where imported notes directory should be created. Defaults to `./OmniNotesEditor`
     
     When used with `--export` flag specifies where OmniNotes backup directory is created. Defaults to `./OmniNotesEditor/backup/`
-* `--`
+* `--source, -s`: use with `--add-note` and `--add-category`. Specifies source directory of your notes
+* `--add-category`: use this flag for creating new category without editing `categories.ini` file
+* `--no-confirm, -n`: when used with `--add-category` skips prompting user for category color,
+ 
+    when used with `--add-note` skips prompting user for note title.
+* `--add-note`: creates new note file structure in given source path
+* `--settings`: use with `--trashed`, `--archived`, `--category` for editing note settings. See section edit settings with CLI
 
 ## dependencies
-
+Python scripts depend on package `python-magic 0.4.15`. See `requirements.txt`
 # development documentation
 
 ## Data flow diagrams

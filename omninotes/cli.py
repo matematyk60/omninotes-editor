@@ -5,6 +5,7 @@ import os
 import pathlib
 from omninotes.exporter import Exporter
 from omninotes.category import Category
+from omninotes.settings import Settings
 from omninotes.category_dump import CategoryDump
 from omninotes.cli_helpers import CliHelpers
 
@@ -28,8 +29,14 @@ class CLI:
         self.parser.add_argument(
             "--color", action='store', dest="color", help='color for new category')
         self.parser.add_argument(
+            "-s", "--source", dest="source", action="store")
+        self.parser.add_argument(
             "--add-note", dest="add_note", action='store_true')
         self.parser.add_argument("--title", dest="note_title", action='store')
+        self.parser.add_argument("--settings", action='store', dest='settings')
+        self.parser.add_argument("--trashed", dest='trashed', action='store')
+        self.parser.add_argument("--archived", dest='archived', action='store')
+        self.parser.add_argument("--category", dest='category', action='store')
 
     def run(self):
         CLI.Instance = self
@@ -45,7 +52,7 @@ class CLI:
                 self.add_note()
             except Exception as e:
                 print(f"Error while creating note: {e}")
-        elif bool(self.options.import_) == bool(self.options.export):
+        elif bool(self.options.import_) == bool(self.options.export) and self.options.import_ and self.options.export:
             self.parser.print_usage()
         elif self.options.import_:
             dest = self.options.destination if self.options.destination else "./OmniNotesEditor/"
@@ -70,6 +77,17 @@ class CLI:
             except Exception as e:
                 print(
                     f"Error while exporting to backup from source '{source}': {e}")
+        elif self.options.settings:
+            note_directory = self.options.settings
+            try:
+                trashed = bool(self.options.trashed) if self.options.trashed else None
+                archived = bool(self.options.archived) if self.options.archived else None
+                category = self.options.category
+
+                CliHelpers.edit_settings(note_directory, trashed, archived, category)
+            except Exception as e:
+                print(f"Error while changing settings in note '{note_directory}': {e}")
+
         else:
             raise NotImplementedError()
 
