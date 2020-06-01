@@ -109,3 +109,10 @@ You can use created backup directory to import your notes to OmniNotes app. Go t
 ## dependencies
 
 # development documentation
+
+## Data flow diagrams
+### Import
+![](docs/Import.png)
+### Export
+![](docs/Export.png)
+
