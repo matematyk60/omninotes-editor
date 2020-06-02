@@ -45,7 +45,6 @@ class NoteData:
     @staticmethod
     def parse_from_backup(file_contents, attachments_path):
         data = json.loads(file_contents)
-        NoteData.validate_backup_json(data)
         settings = Settings.parse_from_json(data)
         return NoteData(
             content=data.get("content", ""),
@@ -64,7 +63,6 @@ class NoteData:
 
     @staticmethod
     def parse_from_file_structure(content_file_contents, content_file_extension, note_path, categories):
-        NoteData.validate_note_file_structure(note_path)
         settings = Settings.parse_from_file(note_path, categories)
         return NoteData(
             content=content_file_contents,
@@ -80,13 +78,3 @@ class NoteData:
             longitude=settings.longitude,
             latitude=settings.latitude
         )
-
-    @staticmethod
-    def validate_backup_json(data):
-        # TODO: validation
-        pass
-
-    @staticmethod
-    def validate_note_file_structure(path):
-        # TODO: validation
-        pass

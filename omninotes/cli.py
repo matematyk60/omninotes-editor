@@ -89,7 +89,8 @@ class CLI:
                 print(f"Error while changing settings in note '{note_directory}': {e}")
 
         else:
-            raise NotImplementedError()
+            self.parser.print_usage()
+
 
     def get_source_path(self) -> str:
         return self.options.source if self.options.source else "."

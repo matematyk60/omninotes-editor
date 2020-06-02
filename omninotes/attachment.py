@@ -22,7 +22,6 @@ class Attachment:
     def parse(data, attachments_path) -> list:
         if not data:
             return []
-        Attachment.validate(data)
         result = []
         for attachment in data:
             result.append(
@@ -63,11 +62,3 @@ class Attachment:
 
         return "/".join(splitted)
 
-
-
-
-
-    @staticmethod
-    def validate(data):
-        # TODO: validation
-        pass

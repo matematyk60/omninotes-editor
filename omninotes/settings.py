@@ -50,7 +50,6 @@ class Settings:
 
     @staticmethod
     def parse_from_json(json):
-        Settings.validate_json(json)
         alarm = json.get("alarm")
         if alarm: alarm = int(alarm)
         creation = json.get("creation")
@@ -67,17 +66,13 @@ class Settings:
 
     @staticmethod
     def parse_from_file(base_dir, categories):
-        Settings.validate_file_structure(base_dir)
         config = configparser.ConfigParser()
         config.read(Settings.settings_file(base_dir))
 
         category = config.get(Settings.settings_section(), "category", fallback=None)
         if category:
             cat_title = category
-            category = None
-            for category_ in categories:
-                if category_.title == cat_title:
-                    category = category_
+            category = categories.get(cat_title)
             if not category:
                 categories[cat_title] = Settings.create_new_category(cat_title)
                 category = categories[cat_title]
@@ -120,12 +115,3 @@ class Settings:
         if os.path.exists(path):
             Category.dump_to_file(path, [category], True)
 
-    @staticmethod
-    def validate_json(json):
-        # TODO: validation
-        pass
-
-    @staticmethod
-    def validate_file_structure(filePath):
-        # TODO: validation
-        pass
