@@ -1,11 +1,9 @@
 import argparse
-import sys
 from omninotes.importer import Importer
 import os
 import pathlib
 from omninotes.exporter import Exporter
 from omninotes.category import Category
-from omninotes.settings import Settings
 from omninotes.category_dump import CategoryDump
 from omninotes.cli_helpers import CliHelpers
 
@@ -55,7 +53,7 @@ class CLI:
         elif bool(self.options.import_) == bool(self.options.export) and self.options.import_ and self.options.export:
             self.parser.print_usage()
         elif self.options.import_:
-            dest = self.options.destination if self.options.destination else "./OmniNotesEditor/"
+            dest = self.options.destination if self.options.destination else os.path.join(os.getcwd(), "omni-notes")
             category_dump = CategoryDump()
             pathlib.Path(dest).mkdir(parents=True, exist_ok=True)
             for backup_path in self.options.backup_paths:
@@ -70,7 +68,7 @@ class CLI:
             else:
                 self.parser.print_usage()
                 return
-            dest = self.options.destination if self.options.destination else "./OmniNotesEditor/backup/"
+            dest = self.options.destination if self.options.destination else "./omni-notes-backup/"
             try:
                 exporter = Exporter(source)
                 exporter.export_notes(dest)

@@ -58,8 +58,6 @@ If `--title` parameter is omitted user will be prompted,
 if run with `--no-confirm` flag, note will be created with empty title.  
 The newly created note will be placed in /path/to/imported/backup/dir/{note title}_{timestamp} or /path/to/imported/backup/dir/{timestamp} if title is empty 
 
-
-
 ## edit your notes
 
 To edit text note, simply edit contents of note's `.txt` file. Same instructions apply to editing a checklist note (`.cl`), but you have to remember that is must have checklist structure, e.g.:
@@ -69,6 +67,9 @@ To edit text note, simply edit contents of note's `.txt` file. Same instructions
 [ ] Smell fresh grass
 [x] do the laundry
 ```
+
+### change note title
+Note title is resolved by reading prefix (text before `_`) from note directory name. If name doesn't have underscore in it all directory name is used for note title. 
 
 ## add an attachment
 
@@ -120,9 +121,9 @@ To edit your notes settings without editing `settings.ini` file you can run
 * `--export, -e` `{source_directory}`: use this flag to export your notes to OmniNotes backup directory.
 * `--destination, -d` destination directory path.
         
-    When used with `--import` flag specifies where imported notes directory should be created. Defaults to `./OmniNotesEditor`
+    When used with `--import` flag specifies where imported notes directory should be created. Defaults to `./omni-notes`
     
-    When used with `--export` flag specifies where OmniNotes backup directory is created. Defaults to `./OmniNotesEditor/backup/`
+    When used with `--export` flag specifies where OmniNotes backup directory is created. Defaults to `./omni-notes-backup/`
 * `--source, -s`: use with `--add-note` and `--add-category`. Specifies source directory of your notes
 * `--add-category`: use this flag for creating new category without editing `categories.ini` file
 * `--no-confirm, -n`: when used with `--add-category` skips prompting user for category color,
